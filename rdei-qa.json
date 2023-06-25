@@ -9,6 +9,8 @@
   "a": "concast"},
  {"q": "what is a rdei team", 
   "a": "grouping of users and kubernetes resources like namespaces"},
- {"q": "what is rdei", 
-  "a": "a kubernetes control plane"}
+ {"q": "who owns the kubernetes resources", 
+  "a": "the rdei team"},
+ {"q": "who can access kubernetes resources", 
+  "a": "the members of the team"}
 ]
