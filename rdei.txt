@@ -1,4 +1,4 @@
-RDEI is a Kubernetes control plane created by David Arbuckle at Concast in 2015.
-
 RDEI teams are grouping of users and kubernetes resources like namespaces, persistent volumes and Virtual IPs. 
 The RDEI team owns the resources and the members of the team can access these resources.
+
+RDEI is a Kubernetes control plane created by David Arbuckle at Concast in 2015.

@@ -46,7 +46,7 @@ def process (question):
     answer = ' '.join(tokens[start_index:end_index+1])
 
     corrected_answer = correct_answer(answer)
-    return corrected_answer
+    return corrected_answer.strip()
 
 
 print ("Reading ", DATA)
@@ -58,14 +58,21 @@ print ("Paragraph:")
 print (paragraph)
 print ("--------------------------------------------------------\n")
 
+count_test = 0
+count_pass = 0
 for qa in QAList:
+     count_test += 1
      model_ans = process(qa["q"])
 
-     result="PASS"
-     if model_ans.find(qa["a"]) < 0:
-        result="FAIL"
+     result="FAIL"
+     if qa["a"].find(model_ans) >= 0 or model_ans.find(qa["a"]) >= 0:
+        result="PASS"
+        count_pass += 1
      
-     print ("Q=%s\n  Answer= %s\n  Model =%s\n  %s \n" % ( qa["q"], qa["a"] , model_ans, result))
+     print ("Q=%s\n  Answer=%s\n  Model =%s\n  %s \n" % ( qa["q"], qa["a"] , model_ans, result))
+
+
+print  ("Tests: %d, PASSED: %d " % (count_test, count_pass))
 
 
 

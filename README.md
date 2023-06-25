@@ -40,4 +40,6 @@ Q=what is rdei
   Answer= a kubernetes control plane
   Model = a kubernetes control plane
   PASS 
+
+Tests: 6, PASSED: 6 
 ```
