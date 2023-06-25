@@ -5,7 +5,6 @@
 $ python3 qa.py  rdei
 Reading  rdei.txt
 Paragraph:
-
 RDEI is a Kubernetes control plane created by David Arbuckle at Concast in 2015.
 
 RDEI teams are grouping of users and kubernetes resources like namespaces, persistent volumes and Virtual IPs. 
