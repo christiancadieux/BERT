@@ -2,34 +2,43 @@
 ## sample run 
 
 ```
-Paragraph: RDEI is a Kubernetes control plane created by David Arbuckle at Concast in 2015.
+$ python3 qa.py  rdei
+Reading  rdei.txt
+Paragraph:
 
-RDEI teams are grouping of users and kubernetes resources like namespaces, persistent volumes and Virtual IPs. The RDEI team owns the resources and the members of the team can access these resources.
+RDEI is a Kubernetes control plane created by David Arbuckle at Concast in 2015.
 
-Question? What is rdei
- a kubernetes control plane
+RDEI teams are grouping of users and kubernetes resources like namespaces, persistent volumes and Virtual IPs. 
+The RDEI team owns the resources and the members of the team can access these resources.
+--------------------------------------------------------
 
-Question? what is a rdei team
- grouping of users and kubernetes resources like namespaces , persistent volumes and virtual ips
+Q=what is rdei
+  Answer= a kubernetes control plane
+  Model = a kubernetes control plane
+  PASS 
 
-Question? who owns the namespaces
- the rdei team
+Q=who created rdei
+  Answer= david arbuckle
+  Model = david arbuckle
+  PASS 
 
-Question? who can access the namespaces
- the members of the team
+Q=when was rdei created
+  Answer= 2015
+  Model = 2015
+  PASS 
 
-Question? who created rdei
- david arbuckle
+Q=where was rdei created
+  Answer= concast
+  Model = concast
+  PASS 
 
-Question? when was rdei created
- 2015
+Q=what is a rdei team
+  Answer= grouping of users and kubernetes resources like namespaces
+  Model = grouping of users and kubernetes resources like namespaces , persistent volumes and virtual ips
+  PASS 
 
-Question? where was rdei created
- concast
-
-Question? what is rdei
- a kubernetes control plane
-
-Question? #
-Bye!
+Q=what is rdei
+  Answer= a kubernetes control plane
+  Model = a kubernetes control plane
+  PASS 
 ```
