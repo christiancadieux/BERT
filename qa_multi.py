@@ -8,6 +8,9 @@ from transformers import pipeline
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 
+# break large document in paragraph since BERT is limited to few tokens.
+# rank paragraphs based on how related they seem to be to the question
+
 DATA="data.txt"
 ans="data-qa.json"
 MIN_SCORE=0.2
@@ -78,6 +81,7 @@ def process_doc(question, doc):
        (model_ans, scored_answers) = process_paragraph(question, par1)
        print ("SCORED=", scored_answers)
        # use the response from that paragraph if score is high enough
+       # todo: try more paragraphs  in case subsequent second ones has a better score
        if scored_answers[0]['score'] > MIN_SCORE:
           return (scored_answers[0]['answer'], scored_answers)
 
