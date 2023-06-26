@@ -1,6 +1,8 @@
 import sys
 import torch
 import json
+import os
+from sentence_transformers import SentenceTransformer, util
 
 from transformers import BertForQuestionAnswering
 from transformers import BertTokenizer
@@ -13,7 +15,10 @@ from nltk.tokenize import word_tokenize
 
 DATA="data.txt"
 ans="data-qa.json"
-MIN_SCORE=0.2
+MIN_ANSWER_SCORE=0.2
+MIN_PARAGRAPH_SIMILARITY=0.4
+
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
 if len(sys.argv) > 1:
     DATA=sys.argv[1] + ".txt"
@@ -24,6 +29,10 @@ QAList = json.load(f)
 
 #Model
 model = BertForQuestionAnswering.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
+
+# Similar
+similar_model = SentenceTransformer('sentence-transformers/all-MiniLM-L6-v2')
+
 
 #Tokenizer
 tokenizer = BertTokenizer.from_pretrained('bert-large-uncased-whole-word-masking-finetuned-squad')
@@ -42,51 +51,49 @@ def correct_answer(answer):
 def remove_stop_words(line):
     word_tokens = word_tokenize(line)
     filtered_line = [w for w in word_tokens if not w.lower() in stop_words]
-    print(filtered_line)
+    #print(filtered_line)
     return filtered_line
 
-    
 
-def process_doc(question, doc):
-    paragraphs = doc.split('\n')
-
-    filtered_question = remove_stop_words(question)
-    par_idx = -1
-    par_max = -1
+# find most related paragraph
+def find_similar_paragraph(question, paragraphs):
+   
+    similar_q = similar_model.encode(question, convert_to_tensor=True)
+    max = -100
+    max_idx = -1
     par_list = []
-    # re-order paragraphs based on the number/length of matches with question words
+
     for idx, par0 in enumerate(paragraphs):
         par1 = par0.strip().lower()
         if par1 == "":
            continue
-        found = 0
-        for w in filtered_question:
-            if par1.find(w) >= 0:
-               print ("Found 'word' %s in '%s" % (w, par1[0:50]))
-               found += len(w)
-        if found > 0 and found > par_max:
-           par_max = found
-           par_list.append(idx)
+        similar_par = similar_model.encode(par1, convert_to_tensor=True)
+        sim = util.pytorch_cos_sim(similar_q, similar_par)
+        par_list.append({"idx": idx, "sim": sim[0]})
 
-    print ("par_list=", par_list)
-    if len(par_list) == 0:
-       print("NO paragraph found for question", question)
-       return ("", [])
+    par_list.sort(reverse=True, key=lambda d: d['sim'])
+    return par_list
+    
 
-    for ix in par_list:
-       par0 = paragraphs[ix]
+def find_answer(question, doc):
+    paragraphs = doc.split('\n')
+
+    #filtered_question = remove_stop_words(question)
+    similar_par_list = find_similar_paragraph(question, paragraphs)
+    for sim in similar_par_list:
+       if sim["sim"] < MIN_PARAGRAPH_SIMILARITY:
+          continue
+       par0 = paragraphs[sim["idx"]]
        par1 = par0.strip().lower()
-       print ("found %d - %s .. " % (ix, paragraphs[ix][0:100]))
 
-       (model_ans, scored_answers) = process_paragraph(question, par1)
-       print ("SCORED=", scored_answers)
-       # use the response from that paragraph if score is high enough
-       # todo: try more paragraphs  in case subsequent second ones has a better score
-       # https://huggingface.co/tasks/sentence-similarity
-       if scored_answers[0]['score'] > MIN_SCORE:
-          return (scored_answers[0]['answer'], scored_answers)
+       scored_answers = process_paragraph(question, par1)
+       print ("SIM %d=%s, PAR_SCORES=%s " % (sim["idx"], sim["sim"],  scored_answers))
 
-    return ("", [])
+       if scored_answers[0]['score'] > MIN_ANSWER_SCORE:
+          return scored_answers
+
+    print ("NO GOOD PARAGRAPH FOUND:", similar_par_list)
+    return []
 
 def process_paragraph (question, paragraph):
     print ("Q=", question, "PAR=", paragraph[0:100])
@@ -103,10 +110,10 @@ def process_paragraph (question, paragraph):
     start_index = torch.argmax(start_scores)
     end_index = torch.argmax(end_scores)
 
-    answer = ' '.join(tokens[start_index:end_index+1])
+    #answer = ' '.join(tokens[start_index:end_index+1])
 
-    corrected_answer = correct_answer(answer)
-    return (corrected_answer.strip(), scored_answers)
+    #corrected_answer = correct_answer(answer)
+    return scored_answers
 
 
 print ("Reading ", DATA)
@@ -120,10 +127,15 @@ count_pass = 0
 for qa in QAList:
   
      count_test += 1
-     (model_ans, scored_answers) = process_doc(qa["q"], document)
+     scored_answers = find_answer(qa["q"], document)
+     if len(scored_answers) == 0:
+        print ("Q=%s \n NO ANSWER" % (qa["q"],))
+        continue
+        
+     model_ans = scored_answers[0]["answer"]
 
      result="FAIL"
-     print (">>>>a=%s, model=%s, %d - %d" %( qa["a"], model_ans,  qa["a"].find(model_ans) , model_ans.find(qa["a"]) ))
+     #print (">>>>a=%s, model=%s, %d - %d" %( qa["a"], model_ans,  qa["a"].find(model_ans) , model_ans.find(qa["a"]) ))
      if qa["a"].find(model_ans) >= 0 or model_ans.find(qa["a"]) >= 0:
         result="PASS"
         count_pass += 1

@@ -14,5 +14,7 @@
  {"q": "who owns the kubernetes resources", 
   "a": "the rdei team"},
  {"q": "who can access kubernetes resources", 
-  "a": "the members of the team"}
+  "a": "the members of the team"},
+ {"q": "where is the moon",
+  "a": "far"}
 ]
