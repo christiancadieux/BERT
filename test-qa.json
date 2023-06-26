@@ -1,0 +1,18 @@
+[
+ {"q": "how many residents live in california", 
+  "a": "million"},
+ {"q": "what is rdei", 
+  "a": "a kubernetes control plane"},
+ {"q": "who created rdei", 
+  "a": "david arbuckle"},
+ {"q": "when was rdei created",
+  "a": "2015"},
+ {"q": "where was rdei created", 
+  "a": "concast"},
+ {"q": "what is a rdei team", 
+  "a": "grouping of users and kubernetes resources like namespaces"},
+ {"q": "who owns the kubernetes resources", 
+  "a": "the rdei team"},
+ {"q": "who can access kubernetes resources", 
+  "a": "the members of the team"}
+]
