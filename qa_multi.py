@@ -82,6 +82,7 @@ def process_doc(question, doc):
        print ("SCORED=", scored_answers)
        # use the response from that paragraph if score is high enough
        # todo: try more paragraphs  in case subsequent second ones has a better score
+       # https://huggingface.co/tasks/sentence-similarity
        if scored_answers[0]['score'] > MIN_SCORE:
           return (scored_answers[0]['answer'], scored_answers)
 
